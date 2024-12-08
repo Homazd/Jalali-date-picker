@@ -5,9 +5,9 @@ import { DateProvider } from "./context/DateContext";
 function App(): JSX.Element {
   return (
     <DateProvider>
-      <div className="bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <DatePicker
-          disabledBeforeDate={moment("1403-01-01", "jYYYY-jMM-jDD").toDate()}
+          disabledBeforeDate={moment("1403-09-20", "jYYYY-jMM-jDD").toDate()}
         />
       </div>
     </DateProvider>

@@ -28,6 +28,8 @@ function DatePicker({ disabledBeforeDate }: DatePickerProps): JSX.Element {
   const [currentMonth, setCurrentMonth] = useState<number>(1);
   const [currentYear, setCurrentYear] = useState<number>(1403);
   const { startDate, setStartDate, endDate, setEndDate } = useDateContext();
+  const [monthDropdownOpen, setMonthDropdownOpen] = useState<boolean>(false);
+  const [yearDropdownOpen, setYearDropdownOpen] = useState<boolean>(false);
 
   const getDaysInMonth = (year: number, month: number): number => {
     return moment.jDaysInMonth(year, month);
@@ -47,25 +49,22 @@ function DatePicker({ disabledBeforeDate }: DatePickerProps): JSX.Element {
 
   const isDisabled = (day: number): boolean => {
     if (!disabledBeforeDate) return false;
-
-    // Convert current date to Jalali
-    const currentDate = moment(
-      `${currentYear}-${currentMonth}-${day}`,
-      "YYYY-MM-DD"
+  
+    // Create a Jalali moment for the current date in the calendar
+    const currentDate = moment()
+      .jYear(currentYear)
+      .jMonth(currentMonth)
+      .jDate(day);
+  
+    // Convert the disabledBeforeDate to Jalali moment
+    const disabledJalaliDate = moment(disabledBeforeDate, "YYYY-MM-DD").locale(
+      "fa"
     );
-
-    console.log("currentDate", currentDate);
-    // Convert disabled date to Jalali if it's Gregorian
-    let disabledJalaliDate = moment(disabledBeforeDate).jDate();
-    console.log("disabledJalaliDate", disabledJalaliDate);
-    console.log(
-      "currentDate.isBefore(disabledJalaliDate): ",
-      currentDate.isBefore(disabledJalaliDate)
-    );
-
-    // Compare Jalali dates
-    return currentDate.isBefore(disabledJalaliDate);
+  
+    // Compare the dates correctly in the Jalali calendar
+    return currentDate.isBefore(disabledJalaliDate, "day");
   };
+  
 
   const handleDateClick = (day: number): void => {
     const selectedDate: DateObject = {
@@ -131,6 +130,58 @@ function DatePicker({ disabledBeforeDate }: DatePickerProps): JSX.Element {
       {day}
     </div>
   );
+
+  const handleMonthSelect = (month: number) => {
+    setCurrentMonth(month);
+    setMonthDropdownOpen(false);
+  };
+
+  const handleYearSelect = (year: number) => {
+    setCurrentYear(year);
+    setYearDropdownOpen(false);
+  };
+
+  const renderDropdown = (
+    items: any[],
+    onSelect: (item: any, index: number) => void
+  ) => (
+    <div className="absolute bg-white border border-gray-200 rounded-lg shadow-md">
+      {items.map((item, index) => (
+        <div
+          key={index}
+          onClick={() => onSelect(item, index)}
+          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+        >
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+  
+
+  const renderDropdownTriggers = () => (
+    <div className="relative flex items-center gap-2">
+      <div
+        className="cursor-pointer"
+        onClick={() => setYearDropdownOpen(!yearDropdownOpen)}
+      >
+        {currentYear}
+      </div>
+      {yearDropdownOpen && renderDropdown(
+        Array.from({ length: 11 }, (_, i) => 1400 + i),
+        handleYearSelect
+      )}
+
+      <div
+        className="cursor-pointer"
+        onClick={() => setMonthDropdownOpen(!monthDropdownOpen)}
+      >
+        {MONTHS[currentMonth]}
+      </div>
+      {monthDropdownOpen && renderDropdown([...MONTHS], (_, index) => handleMonthSelect(index))}
+      </div>
+  );
+
   return (
     <div className="w-80 bg-white rounded-xl border border-2 border-black p-4 shadow-lg font-sans rtl">
       <div className="flex justify-between items-center mb-4">
@@ -142,10 +193,7 @@ function DatePicker({ disabledBeforeDate }: DatePickerProps): JSX.Element {
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
 
-        <span className="text-sm">
-          {MONTHS[currentMonth]} {currentYear}
-        </span>
-
+        {renderDropdownTriggers()}
         <button
           onClick={() => handleMonthChange(true)}
           className="p-1 hover:bg-gray-100 rounded-full"
