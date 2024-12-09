@@ -30,7 +30,7 @@ function DatePicker({
   disabledBeforeDate,
   range,
 }: DatePickerProps): JSX.Element {
-  const [currentMonth, setCurrentMonth] = useState<number>(1);
+  const [currentMonth, setCurrentMonth] = useState<number>(8);
   const [currentYear, setCurrentYear] = useState<number>(1403);
   const { startDate, setStartDate, endDate, setEndDate } = useDateContext();
   const [monthDropdownOpen, setMonthDropdownOpen] = useState<boolean>(false);
@@ -40,7 +40,6 @@ function DatePicker({
     return moment.jDaysInMonth(year, month);
   };
 
- 
   const generateCalendarDays = (): number[] => {
     const days: number[] = [];
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
@@ -136,11 +135,11 @@ function DatePicker({
       onClick={() => handleDateClick(day)}
       className={`
         aspect-square flex items-center justify-center text-sm
-        cursor-pointer rounded-full hover:bg-gray-100 transition-colors
+        cursor-pointer hover:bg-gray-100 transition-colors
         ${isSelected(day) ? "bg-purple-100" : ""}
         ${
           startDate?.day === day || endDate?.day === day
-            ? "bg-slate-950 text-white"
+            ? "bg-slate-950 text-white rounded-full"
             : ""
         }
         ${isDisabled(day) ? "opacity-50 cursor-not-allowed" : ""}
@@ -168,12 +167,12 @@ function DatePicker({
     items: any[],
     onSelect: (item: any, index: number) => void
   ) => (
-    <div className="absolute bg-white border border-gray-200 rounded-lg shadow-md">
+    <div className="absolute top-8 left-[-100px] grid grid-cols-3 w-[280px] inset-x-0 bg-white border border-gray-200 rounded-lg shadow-md">
       {items.map((item, index) => (
         <div
           key={index}
           onClick={() => onSelect(item, index)}
-          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm z-100"
         >
           {item}
         </div>
@@ -208,23 +207,36 @@ function DatePicker({
 
   return (
     <div className="w-80 bg-white rounded-xl border border-2 border-black p-4 shadow-lg font-sans rtl">
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={() => handleMonthChange(false)}
-          className="p-1 hover:bg-gray-100 rounded-full"
-          aria-label="Next month"
-        >
-          <ChevronLeftIcon className="h-5 w-5" />
-        </button>
+      {/* Overlay */}
+      {(monthDropdownOpen || yearDropdownOpen) && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => {
+            setMonthDropdownOpen(false);
+            setYearDropdownOpen(false);
+          }}
+        ></div>
+      )}
 
+      <div className="flex justify-between items-center mb-4  relative z-50">
         {renderDropdownTriggers()}
-        <button
-          onClick={() => handleMonthChange(true)}
-          className="p-1 hover:bg-gray-100 rounded-full"
-          aria-label="Previous month"
-        >
-          <ChevronRightIcon className="h-5 w-5" />
-        </button>
+        <div>
+          <button
+            onClick={() => handleMonthChange(false)}
+            className="p-1 hover:bg-gray-100 rounded-full"
+            aria-label="Next month"
+          >
+            <ChevronLeftIcon className="h-3 w-3" />
+          </button>
+
+          <button
+            onClick={() => handleMonthChange(true)}
+            className="p-1 hover:bg-gray-100 rounded-full"
+            aria-label="Previous month"
+          >
+            <ChevronRightIcon className="h-3 w-3" />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-7 mb-2">
@@ -235,7 +247,7 @@ function DatePicker({
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 z-50">
         {generateCalendarDays().map(renderDay)}
       </div>
 

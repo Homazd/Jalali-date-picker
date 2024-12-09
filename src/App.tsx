@@ -7,7 +7,8 @@ function App(): JSX.Element {
     <DateProvider>
       <div className="min-h-screen flex items-center justify-center">
         <DatePicker
-          disabledBeforeDate={ConvertToJalali("2024-08-22").toDate()}
+          // disable dates before 9th of December 2024. it is for test and optional
+          disabledBeforeDate={ConvertToJalali("2024-12-09").toDate()}
           range={25}
         />
       </div>
