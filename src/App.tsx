@@ -1,13 +1,14 @@
-import moment from "moment";
 import DatePicker from "./components/DatePicker";
 import { DateProvider } from "./context/DateContext";
+import ConvertToJalali from "./utils/Convert";
 
 function App(): JSX.Element {
   return (
     <DateProvider>
-      <div className="bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <DatePicker
-          disabledBeforeDate={moment("1403-01-01", "jYYYY-jMM-jDD").toDate()}
+          disabledBeforeDate={ConvertToJalali("2024-08-22").toDate()}
+          range={25}
         />
       </div>
     </DateProvider>
